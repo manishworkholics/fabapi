@@ -1,0 +1,46 @@
+# Example queries for testing the EMS Manufacturers API
+
+# Query 1: Get all manufacturers
+query GetAllManufacturers {
+  emsManufacturers {
+    id
+    name
+    location
+    email
+    phone
+    website
+  }
+}
+
+# Query 2: Get specific manufacturer by ID
+query GetManufacturer {
+  emsManufacturer(id: 1) {
+    name
+    location
+    phone
+    email
+    manufacturingSpecifications
+    assemblySpecifications
+  }
+}
+
+# Query 3: Search for manufacturers (e.g., search for "aerospace")
+query SearchManufacturers {
+  searchEMSManufacturers(query: "aerospace") {
+    name
+    location
+    certifications
+    industries
+  }
+}
+
+# Query 4: Filter by location (e.g., "Texas" or "TX")
+query ManufacturersByLocation {
+  emsManufacturersByLocation(location: "TX") {
+    name
+    location
+    phone
+    email
+  }
+}
+

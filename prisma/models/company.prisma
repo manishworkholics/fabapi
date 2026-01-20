@@ -1,0 +1,10 @@
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  address   String?
+  state     String?
+  country   String?
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

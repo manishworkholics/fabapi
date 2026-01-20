@@ -1,0 +1,13 @@
+// This is the model for the EMS bid on a quote
+
+model QuoteEMSBid {
+  id        String   @id @default(uuid())
+  amount    Decimal
+  message   String?
+  quoteId   String
+  quote     Quote    @relation(fields: [quoteId], references: [quoteId], onDelete: Cascade)
+  bidderId  Int
+  bidder    User     @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
