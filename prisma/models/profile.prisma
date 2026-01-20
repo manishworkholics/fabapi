@@ -2,14 +2,34 @@ model Profile {
   id                    Int                   @id @default(autoincrement())
   user                  User                  @relation(fields: [userId], references: [id])
   userId                Int                   @unique
+
+  phone                 String?
   bio                   String?
   location              String?
+
+  // NEW – Company Info
+  companyName           String?
+  establishedYear       Int?
+  employeeRange         String?
+  projectsCompleted     Int?      @default(0)
+
+  // NEW – Arrays
+  certifications        String[]  @default([])
+  specialties           String[]  @default([])
+  manufacturingCapabilities String[] @default([])
+  equipmentList         String[]  @default([])
+
+  // NEW
+  facilityVideoUrl      String?
+
   EMSAvailabilityStatus EMSAvailabilityStatus @default(OPEN)
   jobRole               ProfileJobRole?
   projectBuildType      ProjectBuildType?
+
   createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 }
+
 
 enum ProfileJobRole {
   DESIGN_ENGINEER //@map("DESIGN ENGINEER")

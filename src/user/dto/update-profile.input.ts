@@ -1,5 +1,7 @@
 import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
-import { ProfileJobRole, ProjectBuildType } from '../../profile/profile.entity';
+import { ProjectBuildType } from '../../common/enums/project-build-type.enum';
+
+import { ProfileJobRole } from '../../common/enums/profile-job-role.enum';
 
 @InputType()
 export class UpdateProfileInput {

@@ -13,6 +13,8 @@ import { AppModule as ApplicationModule } from './app/app.module';
 
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './auth/guards/accessToken.guard';
+import './common/enums/profile.enums';
+import './common/graphql/register-enums';
 
 import { MailModule } from './mail/mail.module';
 import { OtpModule } from './otp/otp.module';
@@ -25,6 +27,8 @@ import { BomModule } from './bom/bom.module';
 import { CompanyModule } from './company/company.module';
 import { ProjectsModule } from './projects/projects.module';
 import { IngestionModule } from './ingestion/ingestion.module';
+import { ProjectModule } from './project/project.module';
+
 
 @Module({
   imports: [
@@ -61,6 +65,7 @@ import { IngestionModule } from './ingestion/ingestion.module';
     CompanyModule,
     ProjectsModule,
     IngestionModule,
+    ProjectModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -12,11 +12,15 @@ import { Prisma } from '@prisma/client';
 import { PlaceBidInput } from './dto/place-bid-input';
 import { DetailedBidInput } from './dto/detailed-bid.input';
 import { generateUId } from 'src/utils/helpers';
-import {  QuoteStatus } from '@prisma/client';
+import { ProjectService } from 'src/project/project.service';
 
 @Injectable()
 export class QuoteService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly projectService: ProjectService,
+  ) { }
+
 
   async foundUser(id: number) {
     return await this.prisma.user.findUnique({ where: { id } });
@@ -593,80 +597,33 @@ export class QuoteService {
   }
 
 
-  async withdrawQuoteBid(bidId: string, emsUserId: number) {
-  const bid = await this.prisma.quoteEMSBid.findUnique({
-    where: { id: bidId },
-  });
 
-  if (!bid) throw new NotFoundException('Bid not found');
+  async acceptQuoteBid(bidId: string, pmUserId: number) {
+    const bid = await this.prisma.quoteEMSBid.findUnique({
+      where: { id: bidId },
+      include: { quote: true },
+    });
 
-  if (bid.bidderId !== emsUserId) {
-    throw new ForbiddenException('You can only withdraw your own bid');
+    if (!bid) throw new NotFoundException('Bid not found');
+
+    if (bid.quote.userId !== pmUserId) {
+      throw new ForbiddenException('Only quote owner can accept bid');
+    }
+
+    // Update quote → assign EMS + mark as ASSIGNED
+    await this.prisma.quote.update({
+      where: { quoteId: bid.quoteId },
+      data: {
+        status: 'ASSIGNED',
+        assignedEMSId: bid.bidderId,
+      },
+    });
+
+    // Create project
+    const project = await this.projectService.createProjectFromBid(bidId);
+
+    return project;
   }
-
-  await this.prisma.quoteEMSBid.delete({
-    where: { id: bidId },
-  });
-
-  return true;
-}
-
-async acceptQuoteBid(bidId: string, pmUserId: number) {
-  const bid = await this.prisma.quoteEMSBid.findUnique({
-    where: { id: bidId },
-    include: { quote: true },
-  });
-
-  if (!bid) throw new NotFoundException('Bid not found');
-
-  if (bid.quote.userId !== pmUserId) {
-    throw new ForbiddenException('Only quote owner can accept bid');
-  }
-
-  await this.prisma.quote.update({
-    where: { quoteId: bid.quoteId },
-    data: {
-      status: 'ASSIGNED',
-      assignedEMSId: bid.bidderId,
-    },
-  });
-
-  return true;
-}
-
-
-async getMyBids(emsUserId: number) {
-  return this.prisma.quoteEMSBid.findMany({
-    where: {
-      bidderId: emsUserId,
-    },
-    include: {
-      quote: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-}
-
-
-async getOpenQuotesForEMS() {
-  return this.prisma.quote.findMany({
-    where: {
-      status: 'PENDING',
-      isDraft: false,
-      isArchived: false,
-    },
-    include: {
-      user: true,        // PM info
-      bids: true,        // existing bids (optional)
-      assignedEMS: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-}
 
 
 }

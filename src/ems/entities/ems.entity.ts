@@ -1,5 +1,6 @@
 import { Field, ObjectType, ID, GraphQLISODateTime } from '@nestjs/graphql';
-import { EMSAvailabilityStatus } from 'src/profile/profile.entity';
+import { EMSAvailabilityStatus } from '../../common/enums/ems-availability-status.enum';
+
 
 @ObjectType()
 export class EMS {

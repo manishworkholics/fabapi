@@ -14,7 +14,7 @@ import { DetailedBidResponse } from './dto/detailed-bid-response.dto';
 
 @Resolver(() => Quote)
 export class QuoteResolver {
-  constructor(private readonly quoteService: QuoteService) { }
+  constructor(private readonly quoteService: QuoteService) {}
 
   @Query(() => Quotes, { name: 'quotes' })
   async quotes(
@@ -140,33 +140,4 @@ export class QuoteResolver {
   async quickQuotations(@AuthUser() user: { userId: number; email: string }) {
     return this.quoteService.findQuickQuotations(user.userId);
   }
-
-
-  @Mutation(() => Boolean)
-  async withdrawQuoteBid(
-    @AuthUser() user: { userId: number; email: string },
-    @Args('bidId') bidId: string,
-  ) {
-    return this.quoteService.withdrawQuoteBid(bidId, user.userId);
-  }
-
-  @Query(() => [Bid])
-  async myBids(
-    @AuthUser() user: { userId: number; email: string },
-  ) {
-    return this.quoteService.getMyBids(user.userId);
-  }
-
-
-  @Query(() => [Quote])
-  async emsOpenQuotes(
-    @AuthUser() user: { userId: number; email: string; role?: string },
-  ) {
-    // Optional role check
-    // if (user.role !== 'EMS') throw new ForbiddenException('Only EMS can access');
-
-    return this.quoteService.getOpenQuotesForEMS();
-  }
-
-
 }

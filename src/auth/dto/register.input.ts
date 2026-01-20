@@ -1,5 +1,7 @@
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
-import { IsAlpha, IsEmail, IsNotEmpty } from 'class-validator';
+import { InputType, Field } from '@nestjs/graphql';
+import { IsEmail, IsNotEmpty } from 'class-validator';
+import { UserRole } from '../../common/enums/user-role.enum';
+
 
 @InputType()
 export class RegisterInput {
@@ -23,4 +25,16 @@ export class RegisterInput {
   @IsNotEmpty()
   @Field(() => String)
   password: string;
+
+  // ✅ ADD THIS
+  @Field(() => UserRole)
+  role: UserRole;
+
+   @Field({ nullable: true })
+  phone?: string;
+
+
+
+  @Field()
+  acceptTerms: boolean;
 }

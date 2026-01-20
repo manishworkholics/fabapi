@@ -16,8 +16,13 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
+  ) { }
+
+
   async registerUser(registerInput: RegisterInput) {
+    if (!registerInput.acceptTerms) {
+      throw new ForbiddenException('Please accept terms & conditions');
+    }
     const hashedPassword = await hash(registerInput.password);
 
     const existingUserWithEmailOrUsername = await this.prisma.user.findFirst({
@@ -35,10 +40,10 @@ export class AuthService {
 
     const company = registerInput.companyName
       ? await this.prisma.company.upsert({
-          where: { name: registerInput.companyName },
-          update: {},
-          create: { name: registerInput.companyName },
-        })
+        where: { name: registerInput.companyName },
+        update: {},
+        create: { name: registerInput.companyName },
+      })
       : null;
 
     const user = await this.prisma.user.create({
@@ -48,10 +53,15 @@ export class AuthService {
         firstName: registerInput.firstName,
         lastName: registerInput.lastName,
         hashedPassword,
+        role: registerInput.role,
         companyId: company?.id || null,
+
+        phone: registerInput.phone || null,
+        acceptTerms: registerInput.acceptTerms,
       },
       include: { company: true },
     });
+
 
     const { accessToken, refreshToken } = await this.createToken(
       user.id,

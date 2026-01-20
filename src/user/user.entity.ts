@@ -8,6 +8,8 @@ import {
 import { Profile } from '../profile/profile.entity';
 import { Otp } from '../otp/otp.entity';
 import { Company } from 'src/company/entities/company.entity';
+import { UserRole } from '../common/enums/user-role.enum';
+
 
 @ObjectType()
 export class User {
@@ -51,12 +53,7 @@ export class User {
   updatedAt: string;
 }
 
-export enum UserRole {
-  EMS = 'EMS',
-  PM = 'PM',
-  TALENT_MANAGER = 'TALENT_MANAGER',
-  TALENTS = 'TALENTS',
-}
+
 
 registerEnumType(UserRole, {
   name: 'UserRole',

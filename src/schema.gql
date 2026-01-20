@@ -12,9 +12,17 @@ type Profile {
   EMSAvailabilityStatus: EMSAvailabilityStatus
   createdAt: DateTime!
   updatedAt: DateTime!
+  companyName: String
+  establishedYear: Float
+  employeeRange: String
+  certifications: [String!]
+  specialties: [String!]
+  manufacturingCapabilities: [String!]
+  equipmentList: [String!]
+  facilityVideoUrl: String
+  projectsCompleted: Float
 }
 
-"""Profile Job Roles"""
 enum ProfileJobRole {
   DESIGN_ENGINEER
   PURCHASING_ENGINEER
@@ -95,6 +103,23 @@ type UserResponse {
   status: String
   message: String
   user: User!
+}
+
+type EMSProfileDTO {
+  id: Int!
+  companyName: String
+  location: String
+  bio: String
+  establishedYear: Float
+  employeeRange: String
+  certifications: [String!]
+  specialties: [String!]
+  manufacturingCapabilities: [String!]
+  equipmentList: [String!]
+  facilityVideoUrl: String
+  jobRole: ProfileJobRole
+  projectBuildType: ProjectBuildType
+  EMSAvailabilityStatus: EMSAvailabilityStatus
 }
 
 type Bid {
@@ -181,6 +206,12 @@ type DetailedBidResponse {
   additionalNotes: String
 }
 
+type Project {
+  id: Int!
+  status: String!
+  createdAt: DateTime!
+}
+
 type EMS {
   id: ID!
   username: String
@@ -219,6 +250,8 @@ type Query {
   users: [User!]!
   user(id: Int!): User!
   me: User!
+  getAllEMS: [EMSProfileDTO!]!
+  getEMSById(id: Int!): EMSProfileDTO
   quotes(params: FindAllQuotesInput): Quotes!
   myQuotes(params: FindAllQuotesInput): Quotes!
   quote(quoteId: String!): Quote!
@@ -227,8 +260,8 @@ type Query {
   detailedBid(bidId: String!): DetailedBidResponse!
   detailedBidsForQuote(quoteId: String!): [DetailedBidResponse!]!
   quickQuotations: [Quote!]!
-  myBids: [Bid!]!
-  emsOpenQuotes: [Quote!]!
+  myProjectsAsPM: [Project!]!
+  myProjectsAsEMS: [Project!]!
   ems: [EMS!]!
   availableEMS: [EMS!]!
   emsDetails(id: Int!): EMS!
@@ -300,6 +333,7 @@ type Mutation {
   verifyEmail(token: String!): BasicResponse!
   requestEmailVerification: BasicResponse!
   updateMe(input: UpdateMeInput!): UserResponse!
+  completeEMSProfile(input: CompleteProfileInput!): Boolean!
   signNDA(quoteId: String!): BasicResponse!
   createQuote(createQuoteInput: CreateQuoteInput!): Quote!
   updateQuote(quoteId: String!, updateQuoteInput: UpdateQuoteInput!): Quote!
@@ -307,7 +341,7 @@ type Mutation {
   deleteQuote(quoteId: String!): BasicResponse!
   placeBid(quoteId: String!, placeBidInput: PlaceBidInput!): Bid!
   placeDetailedBid(quoteId: String!, detailedBidInput: DetailedBidInput!): Bid!
-  withdrawQuoteBid(bidId: String!): Boolean!
+  updateProjectStatus(projectId: Float!, status: String!, note: String): Boolean!
 }
 
 input RegisterInput {
@@ -317,6 +351,9 @@ input RegisterInput {
   companyName: String
   username: String
   password: String!
+  role: UserRole!
+  phone: String
+  acceptTerms: Boolean!
 }
 
 input LoginInput {
@@ -341,6 +378,23 @@ input UpdateProfileInput {
   location: String
   jobRole: ProfileJobRole
   projectBuildType: ProjectBuildType
+}
+
+input CompleteProfileInput {
+  phone: String
+  bio: String
+  location: String
+  jobRole: ProfileJobRole
+  projectBuildType: ProjectBuildType
+  EMSAvailabilityStatus: EMSAvailabilityStatus
+  companyName: String
+  establishedYear: Int
+  employeeRange: String
+  certifications: [String!]
+  specialties: [String!]
+  manufacturingCapabilities: [String!]
+  equipmentList: [String!]
+  facilityVideoUrl: String
 }
 
 input CreateQuoteInput {

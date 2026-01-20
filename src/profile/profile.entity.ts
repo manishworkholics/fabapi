@@ -6,6 +6,10 @@ import {
   Int,
 } from '@nestjs/graphql';
 import { User } from '../user/user.entity';
+import { ProfileJobRole } from '../common/enums/profile-job-role.enum';
+import { ProjectBuildType } from '../common/enums/project-build-type.enum';
+import { EMSAvailabilityStatus } from '../common/enums/ems-availability-status.enum';
+
 
 @ObjectType()
 export class Profile {
@@ -35,24 +39,40 @@ export class Profile {
 
   @Field(() => GraphQLISODateTime)
   updatedAt: string;
+
+  @Field({ nullable: true })
+  companyName?: string;
+
+  @Field({ nullable: true })
+  establishedYear?: number;
+
+  @Field({ nullable: true })
+  employeeRange?: string;
+
+  @Field(() => [String], { nullable: true })
+  certifications?: string[];
+
+  @Field(() => [String], { nullable: true })
+  specialties?: string[];
+
+  @Field(() => [String], { nullable: true })
+  manufacturingCapabilities?: string[];
+
+  @Field(() => [String], { nullable: true })
+  equipmentList?: string[];
+
+  @Field({ nullable: true })
+  facilityVideoUrl?: string;
+
+  @Field({ nullable: true })
+  projectsCompleted?: number;
+
 }
 
-export enum ProfileJobRole {
-  DESIGN_ENGINEER = 'DESIGN_ENGINEER',
-  PURCHASING_ENGINEER = 'PURCHASING_ENGINEER',
-  CONTRACT_MANUFACTURER = 'CONTRACT_MANUFACTURER',
-  ELECTRONIC_MANUFACTURING_SERVICE = 'ELECTRONIC_MANUFACTURING_SERVICE',
-}
 
-export enum ProjectBuildType {
-  PCB = 'PCB',
-}
 
-export enum EMSAvailabilityStatus {
-  ACTIVE = 'ACTIVE',
-  OPEN = 'OPEN',
-  NOT_AVAILABLE = 'NOT_AVAILABLE',
-}
+
+
 
 registerEnumType(ProfileJobRole, {
   name: 'ProfileJobRole',
