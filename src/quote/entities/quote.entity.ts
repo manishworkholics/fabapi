@@ -95,6 +95,8 @@ export enum QuoteStatus {
   PENDING = 'PENDING',
   ASSIGNED = 'ASSIGNED',
   COMPLETED = 'COMPLETED',
+  WITHDRAWN = 'WITHDRAWN',
+  
 }
 
 registerEnumType(QuoteType, {

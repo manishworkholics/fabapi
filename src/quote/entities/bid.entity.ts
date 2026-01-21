@@ -28,6 +28,14 @@ export class Bid {
   @Field(() => User)
   bidder: User;
 
+  // ✅ NEW
+  @Field({ nullable: true })
+  message?: string;
+
+  // ✅ NEW
+  @Field(() => String)
+  status: string;
+
   @Field(() => Date)
   createdAt: Date;
 }

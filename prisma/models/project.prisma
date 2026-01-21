@@ -10,12 +10,11 @@ model Project {
   emsId Int
   ems   User @relation("EMS_Projects", fields: [emsId], references: [id])
 
-  status ProjectStatus @default(ASSIGNED)
+  status  ProjectStatus          @default(ASSIGNED)
   history ProjectStatusHistory[]
 
   createdAt DateTime @default(now())
 }
-
 
 enum ProjectStatus {
   ASSIGNED

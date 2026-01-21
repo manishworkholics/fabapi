@@ -30,7 +30,9 @@ model User {
   // ✅ New relations for Project module
   projectsAsPM  Project[] @relation("PM_Projects")
   projectsAsEMS Project[] @relation("EMS_Projects")
-  acceptTerms  Boolean   @default(false)
+  acceptTerms   Boolean   @default(false)
+
+  favoriteQuotes FavoriteQuote[]
 }
 
 enum UserRole {

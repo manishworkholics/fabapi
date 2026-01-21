@@ -394,6 +394,51 @@ export class QuoteService {
     });
   }
 
+  // async placeBid(
+  //   quoteId: string,
+  //   bidderId: number,
+  //   placeBidInput: PlaceBidInput,
+  // ) {
+  //   const quote = await this.prisma.quote.findUnique({ where: { quoteId } });
+
+  //   if (!quote) throw new NotFoundException('Quote not found.');
+
+  //   if (quote.status !== 'PENDING') {
+  //     throw new ForbiddenException('Bidding is closed for this quote.');
+  //   }
+
+  //   const existingBid = await this.prisma.quoteEMSBid.findFirst({
+  //     where: { quoteId, bidderId },
+  //   });
+
+  //   if (existingBid) {
+  //     if (existingBid.status === 'WITHDRAWN') {
+  //       return this.prisma.quoteEMSBid.update({
+  //         where: { id: existingBid.id },
+  //         data: {
+  //           amount: placeBidInput.amount,
+  //           message: placeBidInput.message,
+  //           status: 'PENDING',
+  //         },
+  //       });
+  //     }
+
+  //     throw new ForbiddenException('You have already placed a bid.');
+  //   }
+
+  //   return this.prisma.quoteEMSBid.create({
+  //     data: {
+  //       quoteId,
+  //       bidderId,
+  //       amount: placeBidInput.amount,
+  //       message: placeBidInput.message,
+  //       status: 'PENDING',
+  //     },
+  //   });
+  // }
+
+
+
   async placeDetailedBid(
     quoteId: string,
     bidderId: number,
@@ -422,7 +467,7 @@ export class QuoteService {
 
     // Calculate total estimated cost from pricing breakdown
     const totalEstimatedCost = detailedBidInput.pricingBreakdown.reduce(
-      (total, item) => total + item.price,
+      (total, item) => total + item.totalPrice,
       0,
     );
 
@@ -598,6 +643,34 @@ export class QuoteService {
 
 
 
+  // async acceptQuoteBid(bidId: string, pmUserId: number) {
+  //   const bid = await this.prisma.quoteEMSBid.findUnique({
+  //     where: { id: bidId },
+  //     include: { quote: true },
+  //   });
+
+  //   if (!bid) throw new NotFoundException('Bid not found');
+
+  //   if (bid.quote.userId !== pmUserId) {
+  //     throw new ForbiddenException('Only quote owner can accept bid');
+  //   }
+
+  //   // Update quote → assign EMS + mark as ASSIGNED
+  //   await this.prisma.quote.update({
+  //     where: { quoteId: bid.quoteId },
+  //     data: {
+  //       status: 'ASSIGNED',
+  //       assignedEMSId: bid.bidderId,
+  //     },
+  //   });
+
+  //   // Create project
+  //   const project = await this.projectService.createProjectFromBid(bidId);
+
+  //   return project;
+  // }
+
+
   async acceptQuoteBid(bidId: string, pmUserId: number) {
     const bid = await this.prisma.quoteEMSBid.findUnique({
       where: { id: bidId },
@@ -610,7 +683,6 @@ export class QuoteService {
       throw new ForbiddenException('Only quote owner can accept bid');
     }
 
-    // Update quote → assign EMS + mark as ASSIGNED
     await this.prisma.quote.update({
       where: { quoteId: bid.quoteId },
       data: {
@@ -619,11 +691,125 @@ export class QuoteService {
       },
     });
 
-    // Create project
-    const project = await this.projectService.createProjectFromBid(bidId);
-
-    return project;
+    return true;
   }
+
+
+  async withdrawQuoteBid(bidId: string, emsUserId: number) {
+    const bid = await this.prisma.quoteEMSBid.findUnique({
+      where: { id: bidId }
+    })
+
+    if (!bid) throw new NotFoundException('Bid not found');
+
+    if (bid.bidderId !== emsUserId) {
+      throw new ForbiddenException('You can only withdraw your own bid')
+    }
+
+    await this.prisma.quoteEMSBid.delete({
+      where: { id: bidId }
+    })
+
+    return true
+  }
+
+
+  async getMyBids(emsUserId: number) {
+    return this.prisma.quoteEMSBid.findMany({
+      where: {
+        bidderId: emsUserId,
+      },
+      include: {
+        quote: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+
+  async getOpenQuotesForEMS() {
+    return this.prisma.quote.findMany({
+      where: {
+        status: 'PENDING',
+        isDraft: false,
+        isArchived: false,
+      },
+      include: {
+        user: true,        // PM info
+        bids: true,        // existing bids (optional)
+        assignedEMS: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+
+
+  //............................... favorite...............................
+
+
+  // Add to favorites
+  async addToFavorites(userId: number, quoteId: string) {
+    const quote = await this.prisma.quote.findUnique({ where: { quoteId } });
+    if (!quote) throw new NotFoundException('Quote not found');
+
+    const exists = await this.prisma.FavoriteQuote.findUnique({
+      where: { userId_quoteId: { userId, quoteId } },
+    });
+
+    if (exists) return true;
+
+    await this.prisma.FavoriteQuote.create({
+      data: { userId, quoteId },
+    });
+
+    return true;
+  }
+
+  // Remove from favorites
+  async removeFromFavorites(userId: number, quoteId: string) {
+    await this.prisma.FavoriteQuote.deleteMany({
+      where: { userId, quoteId },
+    });
+
+    return true;
+  }
+
+  // Check is favorite
+  async isFavorite(userId: number, quoteId: string) {
+    const fav = await this.prisma.FavoriteQuote.findUnique({
+      where: { userId_quoteId: { userId, quoteId } },
+    });
+
+    return !!fav;
+  }
+
+
+  async getMyFavoriteQuotes(userId: number) {
+    const favorites = await this.prisma.FavoriteQuote.findMany({
+      where: { userId },
+      include: {
+        quote: {
+          include: {
+            bids: true,
+            user: true,
+            assignedEMS: true,
+          },
+        },
+      },
+      orderBy: {
+        id: 'desc',
+      },
+    });
+
+    // Only return quotes
+    return favorites.map(f => f.quote);
+  }
+
 
 
 }

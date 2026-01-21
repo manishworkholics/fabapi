@@ -7,10 +7,20 @@ export class PricingLineItemInput {
   @IsString()
   description: string;
 
-  @Field(() => Number)
+  @Field()
   @IsNumber()
   @Min(0)
-  price: number;
+  unitPrice: number;
+
+  @Field()
+  @IsNumber()
+  @Min(1)
+  quantity: number;
+
+  @Field()
+  @IsNumber()
+  @Min(0)
+  totalPrice: number;
 }
 
 @ObjectType()
@@ -18,6 +28,12 @@ export class PricingLineItem {
   @Field(() => String)
   description: string;
 
-  @Field(() => Number)
-  price: number;
+  @Field()
+  unitPrice: number;
+
+  @Field()
+  quantity: number;
+
+  @Field()
+  totalPrice: number;
 }

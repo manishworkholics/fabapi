@@ -131,6 +131,8 @@ type Bid {
   quote: Quote!
   bidderId: Int!
   bidder: User!
+  message: String
+  status: String!
   createdAt: DateTime!
 }
 
@@ -173,6 +175,7 @@ enum QuoteStatus {
   PENDING
   ASSIGNED
   COMPLETED
+  WITHDRAWN
 }
 
 type Quotes {
@@ -182,7 +185,9 @@ type Quotes {
 
 type PricingLineItem {
   description: String!
-  price: Float!
+  unitPrice: Float!
+  quantity: Float!
+  totalPrice: Float!
 }
 
 type ProjectApproach {
@@ -260,6 +265,10 @@ type Query {
   detailedBid(bidId: String!): DetailedBidResponse!
   detailedBidsForQuote(quoteId: String!): [DetailedBidResponse!]!
   quickQuotations: [Quote!]!
+  myBids: [Bid!]!
+  emsOpenQuotes: [Quote!]!
+  isFavorite(quoteId: String!): Boolean!
+  myFavoriteQuotes: [Quote!]!
   myProjectsAsPM: [Project!]!
   myProjectsAsEMS: [Project!]!
   ems: [EMS!]!
@@ -341,6 +350,9 @@ type Mutation {
   deleteQuote(quoteId: String!): BasicResponse!
   placeBid(quoteId: String!, placeBidInput: PlaceBidInput!): Bid!
   placeDetailedBid(quoteId: String!, detailedBidInput: DetailedBidInput!): Bid!
+  withdrawQuoteBid(bidId: String!): Boolean!
+  addToFavorites(quoteId: String!): Boolean!
+  removeFromFavorites(quoteId: String!): Boolean!
   updateProjectStatus(projectId: Float!, status: String!, note: String): Boolean!
 }
 
@@ -448,5 +460,7 @@ input DetailedBidInput {
 
 input PricingLineItemInput {
   description: String!
-  price: Float!
+  unitPrice: Float!
+  quantity: Float!
+  totalPrice: Float!
 }

@@ -29,5 +29,5 @@ export class QuoteFilterInput implements Prisma.QuoteWhereInput {
 
   @Field(() => QuoteStatus, { nullable: true })
   @IsOptional()
-  status?: QuoteStatus;
+  status?: any;
 }
