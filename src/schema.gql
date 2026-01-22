@@ -125,7 +125,7 @@ type EMSProfileDTO {
 type Bid {
   id: String!
   amount: Float!
-  userId: Int!
+  userId: Int
   user: User!
   quoteId: String!
   quote: Quote!

@@ -10,8 +10,9 @@ export class Bid {
   @Field()
   amount: number;
 
-  @Field(() => Int)
-  userId: number;
+  @Field(() => Int, { nullable: true })
+  userId?: number;
+
 
   @Field(() => User)
   user: User;

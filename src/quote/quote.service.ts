@@ -188,7 +188,9 @@ export class QuoteService {
           ...(where ? where : {}),
         },
         include: {
-          bids: true,
+          bids: {
+            include: { bidder: true }
+          },
           user: true,
           assignedEMS: true,
         },
