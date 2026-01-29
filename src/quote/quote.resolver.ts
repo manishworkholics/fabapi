@@ -11,6 +11,8 @@ import { Bid } from './entities/bid.entity';
 import { PlaceBidInput } from './dto/place-bid-input';
 import { DetailedBidInput } from './dto/detailed-bid.input';
 import { DetailedBidResponse } from './dto/detailed-bid-response.dto';
+import { ProjectDTO } from '../projects/entities/project.entity';
+
 
 @Resolver(() => Quote)
 export class QuoteResolver {
@@ -200,6 +202,14 @@ export class QuoteResolver {
   ) {
     return this.quoteService.getMyFavoriteQuotes(user.userId);
   }
+
+ @Mutation(() => ProjectDTO)
+async acceptQuoteBid(
+  @AuthUser() user: { userId: number; email: string },
+  @Args('bidId') bidId: string,
+) {
+  return this.quoteService.acceptQuoteBid(bidId, user.userId);
+}
 
 
 

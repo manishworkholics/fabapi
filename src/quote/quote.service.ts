@@ -13,6 +13,8 @@ import { PlaceBidInput } from './dto/place-bid-input';
 import { DetailedBidInput } from './dto/detailed-bid.input';
 import { generateUId } from 'src/utils/helpers';
 import { ProjectService } from 'src/project/project.service';
+import { PurchaseOrderService } from '../purchase-order/purchase-order.service';
+
 
 @Injectable()
 export class QuoteService {
@@ -20,6 +22,7 @@ export class QuoteService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly projectService: ProjectService,
+    private readonly purchaseOrderService: PurchaseOrderService,
   ) { }
 
 

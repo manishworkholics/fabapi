@@ -211,9 +211,57 @@ type DetailedBidResponse {
   additionalNotes: String
 }
 
-type Project {
+type PurchaseOrderDTO {
+  id: String!
+  projectId: Int!
+  quoteId: String!
+  bidId: String!
+  pmId: Int!
+  emsId: Int!
+  vendorName: String!
+  items: [String!]!
+  subtotal: Float!
+  tax: Float!
+  total: Float!
+}
+
+type ProjectStatusHistoryDTO {
   id: Int!
   status: String!
+  note: String
+  createdAt: DateTime!
+}
+
+type ProjectDTO {
+  id: Int!
+  quoteId: String!
+  quote: Quote!
+  pmId: Int!
+  pm: User!
+  emsId: Int!
+  ems: User!
+  status: ProjectStatus!
+  createdAt: DateTime!
+  purchaseOrder: PurchaseOrderDTO
+  history: [ProjectStatusHistoryDTO!]!
+}
+
+enum ProjectStatus {
+  ASSIGNED
+  IN_PROGRESS
+  MANUFACTURING
+  ON_HOLD
+  COMPLETED
+}
+
+type PurchaseOrder {
+  id: String!
+  projectId: String!
+  quoteId: String!
+  bidId: String!
+  vendorName: String!
+  subtotal: Float!
+  total: Float!
   createdAt: DateTime!
 }
 
@@ -251,42 +299,11 @@ type EMSManufacturer {
   updatedAt: DateTime!
 }
 
-type ProjectDTO {
-  id: Int!
-  quoteId: String!
-  quote: Quote!
-  pmId: Int!
-  pm: User!
-  emsId: Int!
-  ems: User!
-  status: ProjectStatus!
-  createdAt: DateTime!
-}
-
-enum ProjectStatus {
-  ASSIGNED
-  IN_PROGRESS
-  MANUFACTURING
-  ON_HOLD
-  COMPLETED
-}
-
 type ProjectStatusHistory {
   id: Int!
   projectId: Int!
   status: ProjectStatus!
   note: String
-  createdAt: DateTime!
-}
-
-type PurchaseOrder {
-  id: String!
-  projectId: String!
-  quoteId: String!
-  bidId: String!
-  vendorName: String!
-  subtotal: Float!
-  total: Float!
   createdAt: DateTime!
 }
 
@@ -309,8 +326,8 @@ type Query {
   emsOpenQuotes: [Quote!]!
   isFavorite(quoteId: String!): Boolean!
   myFavoriteQuotes: [Quote!]!
-  myProjectsAsPM: [Project!]!
-  myProjectsAsEMS: [Project!]!
+  myProjectsAsPM: [ProjectDTO!]!
+  myProjectsAsEMS: [ProjectDTO!]!
   ems: [EMS!]!
   availableEMS: [EMS!]!
   emsDetails(id: Int!): EMS!
@@ -396,6 +413,7 @@ type Mutation {
   withdrawQuoteBid(bidId: String!): Boolean!
   addToFavorites(quoteId: String!): Boolean!
   removeFromFavorites(quoteId: String!): Boolean!
+  acceptQuoteBid(bidId: String!): ProjectDTO!
   updateProjectStatus(projectId: Int!, input: UpdateProjectStatusInput!): ProjectDTO!
 }
 

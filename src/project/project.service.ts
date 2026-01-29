@@ -13,6 +13,16 @@ export class ProjectService {
 
         if (!bid) throw new Error('Bid not found');
 
+        // ✅ Check if project already exists
+        const existingProject = await this.prisma.project.findUnique({
+            where: { quoteId: bid.quoteId },
+        });
+
+        if (existingProject) {
+            return existingProject;
+        }
+
+        // ✅ Create new project
         const project = await this.prisma.project.create({
             data: {
                 quoteId: bid.quoteId,
@@ -30,6 +40,7 @@ export class ProjectService {
 
         return project;
     }
+
 
     async getProjectsForPM(pmId: number) {
         return this.prisma.project.findMany({

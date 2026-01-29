@@ -1,18 +1,19 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { ProjectService } from './project.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { Project } from './models/project.model';
+
+import { ProjectDTO } from 'src/projects/entities/project.entity';
 
 @Resolver()
 export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
-  @Query(() => [Project])
+  @Query(() => [ProjectDTO])
   myProjectsAsPM(@CurrentUser() user: any) {
     return this.projectService.getProjectsForPM(user.id);
   }
 
-  @Query(() => [Project])
+  @Query(() => [ProjectDTO])
   myProjectsAsEMS(@CurrentUser() user: any) {
     return this.projectService.getProjectsForEMS(user.id);
   }

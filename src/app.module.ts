@@ -30,6 +30,7 @@ import { IngestionModule } from './ingestion/ingestion.module';
 import { ProjectModule } from './project/project.module';
 import { PurchaseOrderService } from './purchase-order/purchase-order.service';
 import { PurchaseOrderResolver } from './purchase-order/purchase-order.resolver';
+import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
 
 
 @Module({
@@ -68,6 +69,7 @@ import { PurchaseOrderResolver } from './purchase-order/purchase-order.resolver'
     ProjectsModule,
     IngestionModule,
     ProjectModule,
+    PurchaseOrderModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -5,15 +5,26 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class PurchaseOrderService {
   constructor(private prisma: PrismaService) {}
 
-  async createFromBid(projectId: any, bid: any, quote: any) {
-    const pricing = JSON.parse(bid.message || '{}');
+  async createFromBid(projectId: number, bid: any, quote: any) {
 
+    // ✅ 1. Prevent duplicate PO
+    const existingPO = await this.prisma.purchaseOrder.findUnique({
+      where: { projectId },
+    });
+
+    if (existingPO) {
+      return existingPO;
+    }
+
+    // ✅ 2. Parse pricing
+    const pricing = JSON.parse(bid.message || '{}');
     const items = pricing.pricingBreakdown || [];
 
     const subtotal = items.reduce((s, i) => s + (i.totalPrice || 0), 0);
     const tax = 0;
     const total = subtotal + tax;
 
+    // ✅ 3. Create once
     return this.prisma.purchaseOrder.create({
       data: {
         projectId,
@@ -36,4 +47,3 @@ export class PurchaseOrderService {
     });
   }
 }
-
