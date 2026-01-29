@@ -28,6 +28,8 @@ import { CompanyModule } from './company/company.module';
 import { ProjectsModule } from './projects/projects.module';
 import { IngestionModule } from './ingestion/ingestion.module';
 import { ProjectModule } from './project/project.module';
+import { PurchaseOrderService } from './purchase-order/purchase-order.service';
+import { PurchaseOrderResolver } from './purchase-order/purchase-order.resolver';
 
 
 @Module({
@@ -71,6 +73,8 @@ import { ProjectModule } from './project/project.module';
   providers: [
     PrismaService,
     { provide: APP_GUARD, useClass: AccessTokenGuard },
+    PurchaseOrderService,
+    PurchaseOrderResolver,
   ],
 })
 export class AppModule {}

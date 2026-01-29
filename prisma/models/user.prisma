@@ -28,9 +28,12 @@ model User {
   bomUploads BomUpload[] @relation("UserBomUploads")
 
   // ✅ New relations for Project module
-  projectsAsPM  Project[] @relation("PM_Projects")
-  projectsAsEMS Project[] @relation("EMS_Projects")
+ 
   acceptTerms   Boolean   @default(false)
+
+  pmProjects  Project[] @relation("PM_Projects")
+emsProjects Project[] @relation("EMS_Projects")
+
 
   favoriteQuotes FavoriteQuote[]
 }

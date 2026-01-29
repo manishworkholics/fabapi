@@ -16,6 +16,7 @@ import { ProjectService } from 'src/project/project.service';
 
 @Injectable()
 export class QuoteService {
+  [x: string]: any;
   constructor(
     private readonly prisma: PrismaService,
     private readonly projectService: ProjectService,
@@ -673,28 +674,67 @@ export class QuoteService {
   // }
 
 
+  // async acceptQuoteBid(bidId: string, pmUserId: number) {
+  //   const bid = await this.prisma.quoteEMSBid.findUnique({
+  //     where: { id: bidId },
+  //     include: { quote: true },
+  //   });
+
+  //   if (!bid) throw new NotFoundException('Bid not found');
+
+  //   if (bid.quote.userId !== pmUserId) {
+  //     throw new ForbiddenException('Only quote owner can accept bid');
+  //   }
+
+  //   await this.prisma.quote.update({
+  //     where: { quoteId: bid.quoteId },
+  //     data: {
+  //       status: 'ASSIGNED',
+  //       assignedEMSId: bid.bidderId,
+  //     },
+  //   });
+
+  //   return true;
+  // }
+
+
   async acceptQuoteBid(bidId: string, pmUserId: number) {
-    const bid = await this.prisma.quoteEMSBid.findUnique({
-      where: { id: bidId },
-      include: { quote: true },
-    });
+  const bid = await this.prisma.quoteEMSBid.findUnique({
+    where: { id: bidId },
+    include: {
+      quote: true,
+      bidder: true, // optional (for vendor name)
+    },
+  });
 
-    if (!bid) throw new NotFoundException('Bid not found');
+  if (!bid) throw new NotFoundException('Bid not found');
 
-    if (bid.quote.userId !== pmUserId) {
-      throw new ForbiddenException('Only quote owner can accept bid');
-    }
-
-    await this.prisma.quote.update({
-      where: { quoteId: bid.quoteId },
-      data: {
-        status: 'ASSIGNED',
-        assignedEMSId: bid.bidderId,
-      },
-    });
-
-    return true;
+  if (bid.quote.userId !== pmUserId) {
+    throw new ForbiddenException('Only quote owner can accept bid');
   }
+
+  // 1️⃣ Update quote → assign EMS
+  await this.prisma.quote.update({
+    where: { quoteId: bid.quoteId },
+    data: {
+      status: 'ASSIGNED',
+      assignedEMSId: bid.bidderId,
+    },
+  });
+
+  // 2️⃣ Create project
+  const project = await this.projectService.createProjectFromBid(bidId);
+
+  // 3️⃣ Create purchase order
+  await this.purchaseOrderService.createFromBid(
+    project.id,   // Int
+    bid,
+    bid.quote,
+  );
+
+  // 4️⃣ Return project
+  return project;
+}
 
 
   async withdrawQuoteBid(bidId: string, emsUserId: number) {
