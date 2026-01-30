@@ -8,6 +8,7 @@ import {
 import { User } from 'src/user/user.entity';
 import { Bid } from './bid.entity';
 import { IsIn } from 'class-validator';
+import { ProjectDTO } from 'src/projects/entities/project.entity';
 
 @ObjectType()
 export class Quote {
@@ -83,6 +84,9 @@ export class Quote {
 
   @Field(() => [String], { nullable: true })
   numberOfBoards: string[];
+
+  @Field(() => ProjectDTO, { nullable: true })
+  project?: ProjectDTO;
 }
 
 export enum QuoteType {
@@ -96,7 +100,7 @@ export enum QuoteStatus {
   ASSIGNED = 'ASSIGNED',
   COMPLETED = 'COMPLETED',
   WITHDRAWN = 'WITHDRAWN',
-  
+
 }
 
 registerEnumType(QuoteType, {

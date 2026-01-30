@@ -8,7 +8,7 @@ import { Public } from './decorators/public.decorator';
 
 @Resolver(() => AuthResponse)
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Public()
   @Mutation(() => AuthResponse)

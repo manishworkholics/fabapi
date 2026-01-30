@@ -136,6 +136,56 @@ type Bid {
   createdAt: DateTime!
 }
 
+type PurchaseOrderItemDTO {
+  description: String!
+  quantity: Int!
+  unitPrice: Float!
+  totalPrice: Float!
+}
+
+type PurchaseOrderDTO {
+  id: String!
+  projectId: Int!
+  quoteId: String!
+  bidId: String!
+  pmId: Int!
+  emsId: Int!
+  vendorName: String!
+  items: [PurchaseOrderItemDTO!]!
+  subtotal: Float!
+  tax: Float!
+  total: Float!
+}
+
+type ProjectStatusHistoryDTO {
+  id: Int!
+  status: String!
+  note: String
+  createdAt: DateTime!
+}
+
+type ProjectDTO {
+  id: Int!
+  quoteId: String!
+  quote: Quote!
+  pmId: Int!
+  pm: User!
+  emsId: Int!
+  ems: User!
+  status: ProjectStatus!
+  createdAt: DateTime!
+  purchaseOrder: PurchaseOrderDTO
+  history: [ProjectStatusHistoryDTO!]!
+}
+
+enum ProjectStatus {
+  ASSIGNED
+  IN_PROGRESS
+  MANUFACTURING
+  ON_HOLD
+  COMPLETED
+}
+
 type Quote {
   id: Int!
   quoteId: String
@@ -161,6 +211,7 @@ type Quote {
   updatedAt: DateTime!
   userSignedNDA: Boolean
   numberOfBoards: [String!]
+  project: ProjectDTO
 }
 
 """quote types"""
@@ -209,49 +260,6 @@ type DetailedBidResponse {
   pricingBreakdown: [PricingLineItem!]
   totalEstimatedCost: Float
   additionalNotes: String
-}
-
-type PurchaseOrderDTO {
-  id: String!
-  projectId: Int!
-  quoteId: String!
-  bidId: String!
-  pmId: Int!
-  emsId: Int!
-  vendorName: String!
-  items: [String!]!
-  subtotal: Float!
-  tax: Float!
-  total: Float!
-}
-
-type ProjectStatusHistoryDTO {
-  id: Int!
-  status: String!
-  note: String
-  createdAt: DateTime!
-}
-
-type ProjectDTO {
-  id: Int!
-  quoteId: String!
-  quote: Quote!
-  pmId: Int!
-  pm: User!
-  emsId: Int!
-  ems: User!
-  status: ProjectStatus!
-  createdAt: DateTime!
-  purchaseOrder: PurchaseOrderDTO
-  history: [ProjectStatusHistoryDTO!]!
-}
-
-enum ProjectStatus {
-  ASSIGNED
-  IN_PROGRESS
-  MANUFACTURING
-  ON_HOLD
-  COMPLETED
 }
 
 type PurchaseOrder {
@@ -309,6 +317,7 @@ type ProjectStatusHistory {
 
 type Query {
   getPurchaseOrder(projectId: String!): PurchaseOrder!
+  getPurchaseOrderByQuote(quoteId: String!): PurchaseOrderDTO
   users: [User!]!
   user(id: Int!): User!
   me: User!

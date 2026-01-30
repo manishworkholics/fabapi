@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class PurchaseOrderService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createFromBid(projectId: number, bid: any, quote: any) {
 
@@ -46,4 +46,21 @@ export class PurchaseOrderService {
       where: { projectId },
     });
   }
+
+  async getPurchaseOrderByQuoteId(quoteId: string) {
+    return this.prisma.purchaseOrder.findFirst({
+      where: { quoteId },
+      include: {
+        project: {
+          include: {
+            pm: true,
+            ems: true,
+            quote: true,
+          },
+        },
+      },
+    });
+  }
+
+
 }

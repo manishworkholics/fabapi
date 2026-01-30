@@ -18,6 +18,8 @@ export class ProjectDTO {
   @Field(() => Quote)
   quote: Quote;
 
+  
+
   @Field(() => User)
   ems: User;
 

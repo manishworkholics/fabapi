@@ -1,4 +1,5 @@
 import { ObjectType, Field, Int, Float } from '@nestjs/graphql';
+import { PurchaseOrderItemDTO } from './purchase-order-item-dto';
 
 @ObjectType()
 export class PurchaseOrderDTO {
@@ -23,8 +24,8 @@ export class PurchaseOrderDTO {
     @Field(() => String)
     vendorName: string;
 
-    @Field(() => [String])
-    items: string[]; // stored as JSON in DB
+    @Field(() => [PurchaseOrderItemDTO])
+    items: PurchaseOrderItemDTO[];
 
     @Field(() => Float)
     subtotal: number;

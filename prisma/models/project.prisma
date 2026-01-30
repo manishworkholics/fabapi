@@ -18,8 +18,7 @@ model Project {
   createdAt DateTime @default(now())
 
   @@index([pmId])
-@@index([emsId])
-
+  @@index([emsId])
 }
 
 enum ProjectStatus {
@@ -39,4 +38,3 @@ model ProjectStatusHistory {
 
   project Project @relation(fields: [projectId], references: [id])
 }
-
