@@ -1,0 +1,685 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Profile {
+  id: Int!
+  bio: String
+  location: String
+  user: User!
+  jobRole: ProfileJobRole
+  projectBuildType: ProjectBuildType
+  EMSAvailabilityStatus: EMSAvailabilityStatus
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  companyName: String
+  establishedYear: Float
+  employeeRange: String
+  certifications: [String!]
+  specialties: [String!]
+  manufacturingCapabilities: [String!]
+  equipmentList: [String!]
+  facilityVideoUrl: String
+  projectsCompleted: Float
+}
+
+enum ProfileJobRole {
+  DESIGN_ENGINEER
+  PURCHASING_ENGINEER
+  CONTRACT_MANUFACTURER
+  ELECTRONIC_MANUFACTURING_SERVICE
+}
+
+"""Project Build Type"""
+enum ProjectBuildType {
+  PCB
+}
+
+"""EMS Availability Status"""
+enum EMSAvailabilityStatus {
+  ACTIVE
+  OPEN
+  NOT_AVAILABLE
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Otp {
+  id: ID!
+  user: User!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Company {
+  id: ID!
+  name: String
+  address: String
+  state: String
+  country: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type User {
+  id: ID!
+  username: String
+  otps: [Otp!]
+  email: String!
+  firstName: String
+  lastName: String
+  phone: String
+  role: UserRole
+  profile: Profile
+  company: Company
+  createdAt: DateTime!
+  verifiedAt: DateTime
+  updatedAt: DateTime!
+}
+
+"""user roles"""
+enum UserRole {
+  ADMIN
+  EMS
+  PM
+  TALENT_MANAGER
+  TALENTS
+}
+
+type AuthResponse {
+  accessToken: String!
+  refreshToken: String!
+  user: User!
+}
+
+type BasicResponse {
+  status: String
+  message: String
+}
+
+type UserResponse {
+  status: String
+  message: String
+  user: User!
+}
+
+type EMSProfileDTO {
+  id: Int!
+  companyName: String
+  location: String
+  bio: String
+  establishedYear: Float
+  employeeRange: String
+  certifications: [String!]
+  specialties: [String!]
+  manufacturingCapabilities: [String!]
+  equipmentList: [String!]
+  facilityVideoUrl: String
+  jobRole: ProfileJobRole
+  projectBuildType: ProjectBuildType
+  EMSAvailabilityStatus: EMSAvailabilityStatus
+  rating: Float
+  reviewCount: Int
+}
+
+type Bid {
+  id: String!
+  amount: Float!
+  userId: Int
+  user: User!
+  quoteId: String!
+  quote: Quote!
+  bidderId: Int!
+  bidder: User!
+  message: String
+  status: String!
+  createdAt: DateTime!
+}
+
+type PurchaseOrderItemDTO {
+  description: String!
+  quantity: Int!
+  unitPrice: Float!
+  totalPrice: Float!
+}
+
+type PurchaseOrderDTO {
+  id: String!
+  projectId: Int!
+  quoteId: String!
+  bidId: String!
+  pmId: Int!
+  emsId: Int!
+  vendorName: String!
+  items: [PurchaseOrderItemDTO!]!
+  subtotal: Float!
+  tax: Float!
+  total: Float!
+}
+
+type ProjectStatusHistoryDTO {
+  id: Int!
+  status: String!
+  note: String
+  createdAt: DateTime!
+}
+
+type ProjectDTO {
+  id: Int!
+  quoteId: String!
+  quote: Quote!
+  pmId: Int!
+  pm: User!
+  emsId: Int!
+  ems: User!
+  status: ProjectStatus!
+  createdAt: DateTime!
+  purchaseOrder: PurchaseOrderDTO
+  history: [ProjectStatusHistoryDTO!]!
+}
+
+enum ProjectStatus {
+  ASSIGNED
+  IN_PROGRESS
+  MANUFACTURING
+  ON_HOLD
+  COMPLETED
+}
+
+type Quote {
+  id: Int!
+  quoteId: String
+  user: User!
+  quoteName: String!
+  title: String
+  description: String
+  quoteMaterials: [String!]!
+  pcbBoards: Float
+  stencils: Float
+  components: Float
+  turnTime: Float
+  quoteFiles: [String!]!
+  quoteType: QuoteType!
+  status: QuoteStatus!
+  bids: [Bid!]
+  budget: Float!
+  assignedEMSId: Int
+  assignedEMS: User
+  isArchived: Boolean!
+  hasNDA: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  userSignedNDA: Boolean
+  numberOfBoards: [String!]
+  project: ProjectDTO
+}
+
+"""quote types"""
+enum QuoteType {
+  OPEN_QUOTE
+  FIXED_QUOTE
+  QUICK_QUOTE
+}
+
+"""quote status"""
+enum QuoteStatus {
+  PENDING
+  ASSIGNED
+  COMPLETED
+  WITHDRAWN
+}
+
+type Quotes {
+  quotes: [Quote!]!
+  totalCount: Int!
+}
+
+type PricingLineItem {
+  description: String!
+  unitPrice: Float!
+  quantity: Float!
+  totalPrice: Float!
+}
+
+type ProjectApproach {
+  relevantExperience: String
+  technicalApproach: String
+  estimatedTimeline: String
+}
+
+type DetailedBidResponse {
+  id: String!
+  quoteId: String!
+  quote: Quote!
+  bidderId: Int!
+  bidder: User!
+  amount: Float!
+  message: String
+  createdAt: DateTime!
+  projectApproach: ProjectApproach
+  pricingBreakdown: [PricingLineItem!]
+  totalEstimatedCost: Float
+  additionalNotes: String
+}
+
+type PurchaseOrder {
+  id: String!
+  projectId: String!
+  quoteId: String!
+  bidId: String!
+  vendorName: String!
+  subtotal: Float!
+  total: Float!
+  createdAt: DateTime!
+}
+
+type EMS {
+  id: ID!
+  username: String
+  email: String!
+  location: String!
+  firstName: String
+  lastName: String
+  phone: String
+  EMSAvailabilityStatus: EMSAvailabilityStatus
+  createdAt: DateTime!
+  verifiedAt: DateTime
+  updatedAt: DateTime!
+}
+
+type EMSManufacturer {
+  id: ID!
+  name: String!
+  email: String
+  phone: String
+  location: String
+  employees: String
+  certifications: String
+  industries: String
+  website: String
+  emsType: String
+  manufacturingSpecifications: String
+  assemblySpecifications: String
+  capabilities: String
+  equipment: String
+  constraints: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProjectStatusHistory {
+  id: Int!
+  projectId: Int!
+  status: ProjectStatus!
+  note: String
+  createdAt: DateTime!
+}
+
+type ReviewType {
+  id: Int!
+  rating: Int!
+  comment: String!
+  pmId: Int!
+  emsId: Int!
+  createdAt: DateTime!
+  reviewerName: String
+}
+
+type ReviewStatsType {
+  averageRating: Float!
+  reviewCount: Int!
+}
+
+type AdminDashboard {
+  totalUsers: Float!
+  totalEMS: Float!
+  totalPM: Float!
+  totalRFQs: Float!
+  totalProjects: Float!
+}
+
+type AdminUsersResponse {
+  users: [User!]!
+  total: Int!
+}
+
+type AdminEMSListResponse {
+  companies: [Company!]!
+  total: Int!
+}
+
+type AdminRFQ {
+  id: Int!
+  quoteName: String!
+  createdAt: DateTime!
+  userId: Int!
+}
+
+type AdminRFQListResponse {
+  rfqs: [AdminRFQ!]!
+  total: Int!
+}
+
+type AdminProject {
+  id: Int!
+  quoteId: String!
+  pmId: Int!
+  emsId: Int
+  status: String!
+  createdAt: DateTime!
+}
+
+type AdminProjectListResponse {
+  projects: [AdminProject!]!
+  total: Int!
+}
+
+type AdminBid {
+  id: String!
+  bidderId: Int!
+  quoteId: String!
+  createdAt: DateTime!
+}
+
+type AdminBidListResponse {
+  bids: [AdminBid!]!
+  total: Int!
+}
+
+type Query {
+  getPurchaseOrder(projectId: String!): PurchaseOrder!
+  getPurchaseOrderByQuote(quoteId: String!): PurchaseOrderDTO
+  users: [User!]!
+  user(id: Int!): User!
+  me: User!
+  getAllEMS: [EMSProfileDTO!]!
+  getEMSById(id: Int!): EMSProfileDTO
+  getFullEMSDetailById(id: Int!): EMSProfileDTO
+  quotes(params: FindAllQuotesInput): Quotes!
+  myQuotes(params: FindAllQuotesInput): Quotes!
+  quote(quoteId: String!): Quote!
+  myDraftQuotes: [Quote!]!
+  myDraftQuote(quoteId: String!): Quote!
+  detailedBid(bidId: String!): DetailedBidResponse!
+  detailedBidsForQuote(quoteId: String!): [DetailedBidResponse!]!
+  quickQuotations: [Quote!]!
+  myBids: [Bid!]!
+  emsOpenQuotes: [Quote!]!
+  isFavorite(quoteId: String!): Boolean!
+  myFavoriteQuotes: [Quote!]!
+  myProjectsAsPM: [ProjectDTO!]!
+  myProjectsAsEMS: [ProjectDTO!]!
+  ems: [EMS!]!
+  availableEMS: [EMS!]!
+  emsDetails(id: Int!): EMS!
+
+  """Get all EMS manufacturers"""
+  emsManufacturers: [EMSManufacturer!]!
+
+  """Get a specific EMS manufacturer by ID"""
+  emsManufacturer(id: Int!): EMSManufacturer
+
+  """
+  Search EMS manufacturers by name, location, certifications, industries, or type
+  """
+  searchEMSManufacturers(query: String!): [EMSManufacturer!]!
+
+  """Find EMS manufacturers by location"""
+  emsManufacturersByLocation(location: String!): [EMSManufacturer!]!
+
+  """Get all EMS manufacturers only (excludes pure suppliers)"""
+  emsManufacturersOnly: [EMSManufacturer!]!
+
+  """Get all EMS suppliers only (excludes pure manufacturers)"""
+  emsSuppliersOnly: [EMSManufacturer!]!
+
+  """Find EMS manufacturers by location (only manufacturers)"""
+  emsManufacturersByLocationAndType(location: String!): [EMSManufacturer!]!
+
+  """Find EMS suppliers by location"""
+  emsSuppliersByLocation(location: String!): [EMSManufacturer!]!
+  findAllCompanies(query: String): [Company!]!
+  emsProjects: [ProjectDTO!]!
+  projectDetail(projectId: Int!): ProjectDTO!
+  projectTimeline(projectId: Int!): [ProjectStatusHistory!]!
+  emsReviews(emsId: Int!): [ReviewType!]!
+  emsReviewStats(emsId: Int!): ReviewStatsType!
+  adminTest: String!
+  adminDashboard: AdminDashboard!
+  adminUsers(input: AdminUsersInput!): AdminUsersResponse!
+  adminEMSCompanies(input: AdminEMSListInput!): AdminEMSListResponse!
+  adminRFQs(input: AdminRFQListInput!): AdminRFQListResponse!
+  adminProjects(input: AdminProjectListInput!): AdminProjectListResponse!
+  adminBids(input: AdminBidListInput!): AdminBidListResponse!
+}
+
+input FindAllQuotesInput {
+  search: String
+  sortBy: SortBy
+  sortOrder: SortOrder
+  page: Int
+  limit: Int
+  filters: QuoteFilterInput
+}
+
+"""Sort by"""
+enum SortBy {
+  createdAt
+  updatedAt
+}
+
+"""Sort order"""
+enum SortOrder {
+  asc
+  desc
+}
+
+input QuoteFilterInput {
+  id: Float
+  title: String
+  description: String
+  pcbBoards: Float
+  stencils: Float
+  components: Float
+  quoteType: QuoteType
+  status: QuoteStatus
+}
+
+input AdminUsersInput {
+  page: Int! = 1
+  limit: Int! = 10
+  role: UserRole
+}
+
+input AdminEMSListInput {
+  page: Int! = 1
+  limit: Int! = 10
+}
+
+input AdminRFQListInput {
+  page: Int! = 1
+  limit: Int! = 10
+}
+
+input AdminProjectListInput {
+  page: Int! = 1
+  limit: Int! = 10
+}
+
+input AdminBidListInput {
+  page: Int! = 1
+  limit: Int! = 10
+}
+
+type Mutation {
+  register(input: RegisterInput!): AuthResponse!
+  login(input: LoginInput!): AuthResponse!
+  changePassword(oldPassword: String!, newPassword: String!): Boolean!
+  logout: BasicResponse!
+  verifyEmail(token: String!): BasicResponse!
+  requestEmailVerification: BasicResponse!
+  updateMe(input: UpdateMeInput!): UserResponse!
+  completeEMSProfile(input: CompleteProfileInput!): Boolean!
+  signNDA(quoteId: String!): BasicResponse!
+  createQuote(createQuoteInput: CreateQuoteInput!): Quote!
+  updateQuote(quoteId: String!, updateQuoteInput: UpdateQuoteInput!): Quote!
+  archiveQuote(quoteId: String!): BasicResponse!
+  deleteQuote(quoteId: String!): BasicResponse!
+  placeBid(quoteId: String!, placeBidInput: PlaceBidInput!): Bid!
+  placeDetailedBid(quoteId: String!, detailedBidInput: DetailedBidInput!): Bid!
+  withdrawQuoteBid(bidId: String!): Boolean!
+  addToFavorites(quoteId: String!): Boolean!
+  removeFromFavorites(quoteId: String!): Boolean!
+  acceptQuoteBid(bidId: String!): ProjectDTO!
+  updateProjectStatus(projectId: Int!, input: UpdateProjectStatusInput!): ProjectDTO!
+  createReview(pmId: Int!, input: CreateReviewInput!): ReviewType!
+  adminRegister(data: AdminRegisterInput!): String!
+  adminLogin(data: AdminLoginInput!): String!
+  adminToggleUser(input: AdminToggleUserInput!): User!
+  adminToggleCompany(input: AdminToggleCompanyInput!): Company!
+}
+
+input RegisterInput {
+  email: String!
+  firstName: String
+  lastName: String
+  companyName: String
+  username: String
+  password: String!
+  role: UserRole!
+  phone: String
+  acceptTerms: Boolean!
+}
+
+input LoginInput {
+  """User Email"""
+  email: String!
+
+  """User Password"""
+  password: String!
+}
+
+input UpdateMeInput {
+  firstName: String
+  lastName: String
+  username: String
+  phone: String
+  userRole: UserRole
+  profile: UpdateProfileInput
+}
+
+input UpdateProfileInput {
+  bio: String
+  location: String
+  jobRole: ProfileJobRole
+  projectBuildType: ProjectBuildType
+}
+
+input CompleteProfileInput {
+  phone: String
+  bio: String
+  location: String
+  jobRole: ProfileJobRole
+  projectBuildType: ProjectBuildType
+  EMSAvailabilityStatus: EMSAvailabilityStatus
+  companyName: String
+  establishedYear: Int
+  employeeRange: String
+  certifications: [String!]
+  specialties: [String!]
+  manufacturingCapabilities: [String!]
+  equipmentList: [String!]
+  facilityVideoUrl: String
+}
+
+input CreateQuoteInput {
+  title: String!
+  description: String!
+  quoteMaterials: [String!]!
+  quoteName: String!
+  pcbBoards: Float
+  stencils: Float
+  components: Float
+  turnTime: Float!
+  quoteFiles: [String!]!
+  quoteType: QuoteType!
+  budget: Float!
+  assignedEMSId: Int
+  hasNDA: Boolean
+  isDraft: Boolean
+  numberOfBoards: [String!]
+}
+
+input UpdateQuoteInput {
+  title: String
+  description: String
+  quoteMaterials: [String!]
+  quoteName: String
+  pcbBoards: Float
+  stencils: Float
+  components: Float
+  turnTime: Float
+  quoteFiles: [String!]
+  quoteType: QuoteType
+  budget: Float
+  assignedEMSId: Int
+  hasNDA: Boolean
+  isDraft: Boolean
+  numberOfBoards: [String!]
+}
+
+input PlaceBidInput {
+  amount: Float!
+  message: String
+}
+
+input DetailedBidInput {
+  relevantExperience: String
+  technicalApproach: String
+  estimatedTimeline: String
+  pricingBreakdown: [PricingLineItemInput!]!
+  additionalNotes: String
+}
+
+input PricingLineItemInput {
+  description: String!
+  unitPrice: Float!
+  quantity: Float!
+  totalPrice: Float!
+}
+
+input UpdateProjectStatusInput {
+  status: ProjectStatus!
+  note: String
+}
+
+input CreateReviewInput {
+  emsId: Int!
+  rating: Int!
+  comment: String!
+}
+
+input AdminRegisterInput {
+  name: String!
+  email: String!
+  password: String!
+  adminSecret: String!
+}
+
+input AdminLoginInput {
+  email: String!
+  password: String!
+}
+
+input AdminToggleUserInput {
+  userId: Int!
+  isDisabled: Boolean!
+}
+
+input AdminToggleCompanyInput {
+  companyId: Int!
+  isDisabled: Boolean!
+}

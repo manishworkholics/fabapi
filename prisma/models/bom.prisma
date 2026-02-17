@@ -1,0 +1,85 @@
+///  ────────────────────────────────────────────────────────────────
+///  BOM tracking tables  – UPDATED 2025-05-25
+///  ────────────────────────────────────────────────────────────────
+
+enum BomSource {
+  DIGIKEY
+  MOUSER
+}
+
+///
+///  LookupStatus now covers the full life-cycle reported by
+///  Digi-Key / Mouser:
+///   • BACKORDER  – part exists but stock < required qty
+///   • OBSOLETE   – supplier marks part obsolete
+///
+enum LookupStatus {
+  PENDING // queued but not yet sent
+  FOUND // matching part returned
+  NOT_FOUND // “no matches” response
+  BACKORDER // match but insufficient stock
+  OBSOLETE // part marked obsolete
+  ERROR // upstream error
+}
+
+model BomUpload {
+  id     Int  @id @default(autoincrement())
+  user   User @relation("UserBomUploads", fields: [userId], references: [id])
+  userId Int
+
+  fileName      String
+  rowCount      Int
+  columnMapping Json? // filled after /bom/process
+
+  /// Parsed from the comma-separated list the FE sends (“1,5,10 …”)
+  buildQuantities Int[]     @default([])
+  buildDate       DateTime? @db.Date
+
+  bomRows BomRow[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BomRow {
+  id       Int       @id @default(autoincrement())
+  upload   BomUpload @relation(fields: [uploadId], references: [id])
+  uploadId Int
+  quantity Int
+
+  rowIndex     Int // original row number
+  mpns         String[] @db.VarChar(255) // every part-number parsed from the row
+  manufacturer String?
+  reference    String?
+
+  lookups BomLookup[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([uploadId, rowIndex]) // each BOM row is unique
+}
+
+model BomLookup {
+  id    Int    @id @default(autoincrement())
+  row   BomRow @relation(fields: [rowId], references: [id])
+  rowId Int
+
+  source BomSource
+  mpn    String
+  status LookupStatus @default(PENDING)
+
+  /// Real-time stock level delivered by supplier.
+  quantityAvailable Int?
+
+  /// Pre-scaled unit prices keyed by quantity band, e.g. {"1":1.23,"10":1.10}
+  scaledPriceBands Json?
+
+  requestJson  Json // raw payload we sent upstream
+  responseJson Json? // full supplier response
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([rowId, source, mpn]) // one lookup per supplier per part per row
+}

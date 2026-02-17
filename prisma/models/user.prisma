@@ -1,0 +1,50 @@
+model User {
+  id                 Int      @id @default(autoincrement())
+  email              String   @unique
+  userId             String?  @unique @default(uuid())
+  firstName          String?
+  lastName           String?
+  username           String?
+  phone              String?
+  hashedPassword     String
+  hashedRefreshToken String?
+  isDisabled         Boolean  @default(false)
+  role               UserRole @default(EMS)
+
+  profile   Profile?
+  companyId Int?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  otps        Otp[]
+  quotes      Quote[]       @relation("quoteAuthor")
+  EMSBid      QuoteEMSBid[]
+  assignedEMS Quote[]       @relation("assignedQuote")
+  quoteNDA    QuoteNDA[]
+
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now())
+
+  bomUploads BomUpload[] @relation("UserBomUploads")
+
+  // ✅ New relations for Project module
+
+  acceptTerms Boolean @default(false)
+
+  pmProjects  Project[] @relation("PM_Projects")
+  emsProjects Project[] @relation("EMS_Projects")
+
+  favoriteQuotes FavoriteQuote[]
+
+  pmReviews   Review[] @relation("PMReviews")
+  emsReviews  Review[] @relation("EMSReviews")
+
+}
+
+enum UserRole {
+  ADMIN
+  EMS
+  PM
+  TALENT_MANAGER
+  TALENTS
+}

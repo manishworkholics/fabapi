@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BOM Checker</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header><h1>BOM Checker</h1></header>
+
+<main>
+    <!-- ───────────── 1. Upload ───────────── -->
+    <section id="upload-section" class="active-section">
+        <div class="container">
+            <h2>Upload BOM</h2>
+            <div id="upload-area" class="upload-area">
+                <div class="upload-prompt">
+                    <img src="https://cdn-icons-png.flaticon.com/512/731/731099.png" alt="Upload Icon" width="64" />
+                    <p>Drag and drop your Excel BOM here or</p>
+                    <label for="file-input" class="button">Browse Files</label>
+                    <input type="file" id="file-input" accept=".xlsx,.xls" style="display:none;" />
+                </div>
+                <div class="upload-progress" style="display:none;">
+                    <div class="spinner"></div>
+                    <p>Uploading and analyzing file…</p>
+                </div>
+            </div>
+            <div id="upload-error" class="error-message" style="display:none;"></div>
+        </div>
+    </section>
+
+    <!-- ───────────── 2. Column mapping ───────────── -->
+    <section id="column-mapping-section" style="display:none;">
+        <div class="container">
+            <h2>Column Mapping</h2>
+            <p>Please confirm or correct the column mappings below:</p>
+            <div id="columns-container" class="columns-container"></div>
+            <div class="button-row">
+                <button id="back-to-upload" class="button button-secondary">Back</button>
+                <button id="submit-mapping" class="button">Submit Mapping</button>
+            </div>
+            <div id="mapping-error" class="error-message" style="display:none;"></div>
+        </div>
+    </section>
+
+    <!-- ───────────── 3. Results (DigiKey) ───────────── -->
+    <section id="results-section" style="display:none;">
+        <div class="container">
+            <h2>Processing Results</h2>
+
+            <div id="progress-container" class="progress-container">
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar" style="width:0%;"></div>
+                </div>
+                <div class="progress-stats">
+                    <span id="progress-text">Processed: 0 of 0</span>
+                    <span id="found-stats">Found: 0 (0%)</span>
+                </div>
+            </div>
+
+            <!-- DigiKey tabs -->
+            <div id="results-tabs" class="tabs">
+                <button class="tab-button active" data-tab="found-tab">Found Parts</button>
+                <button class="tab-button" data-tab="not-found-tab">Not Found / Out of Stock</button>
+            </div>
+
+            <div id="results-content" class="tab-content">
+                <div id="found-tab" class="tab-pane active">
+                    <div id="found-parts-container" class="parts-container"></div>
+                </div>
+                <div id="not-found-tab" class="tab-pane">
+                    <div id="not-found-parts-container" class="parts-container"></div>
+                </div>
+            </div>
+
+            <div id="results-summary" class="results-summary" style="display:none;">
+                <h3>DigiKey BOM Check Complete</h3>
+                <div id="summary-stats" class="summary-stats"></div>
+            </div>
+
+            <!-- ───────────── 4. Results (Mouser) ───────────── -->
+            <div id="mouser-results" style="display:none;">
+                <h2>Mouser Results</h2>
+
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="mouser-found-tab">Found Parts</button>
+                    <button class="tab-button" data-tab="mouser-not-found-tab">Not Found / Out of Stock</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="mouser-found-tab" class="tab-pane active">
+                        <div id="mouser-found-parts-container" class="parts-container"></div>
+                    </div>
+                    <div id="mouser-not-found-tab" class="tab-pane">
+                        <div id="mouser-not-found-parts-container" class="parts-container"></div>
+                    </div>
+                </div>
+
+                <div id="mouser-results-summary" class="results-summary" style="display:none;">
+                    <h3>Mouser BOM Check Complete</h3>
+                    <div id="mouser-summary-stats" class="summary-stats"></div>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button id="back-to-mapping" class="button button-secondary">Back to Mapping</button>
+                <button id="export-results" class="button">Export Results (CSV)</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer><p>BOM Checker Prototype © 2025</p></footer>
+    
+    <template id="column-card-template">
+        <div class="column-card">
+            <div class="column-header">
+                <h3 class="column-name"></h3>
+            </div>
+            <div class="column-sample">
+                <p>Sample values:</p>
+                <ul class="sample-values"></ul>
+            </div>
+            <div class="column-mapping">
+                <p>Map this column as:</p>
+                <div class="mapping-options">
+                    <div class="radio-option primary-option">
+                        <input type="radio" name="" id="" class="primary-radio">
+                        <label for="" class="primary-label"></label>
+                    </div>
+                    <div class="radio-option secondary-option">
+                        <input type="radio" name="" id="" class="secondary-radio">
+                        <label for="" class="secondary-label"></label>
+                    </div>
+                    <div class="radio-option custom-option">
+                        <input type="radio" name="" id="" class="custom-radio">
+                        <label for="" class="custom-label">Custom:</label>
+                        <select class="custom-select" disabled>
+                            <option value="">Select...</option>
+                            <option value="ManufacturerPN">Manufacturer Part Number</option>
+                            <option value="Manufacturer">Manufacturer</option>
+                            <option value="Description">Description</option>
+                            <option value="Quantity">Quantity</option>
+                            <option value="Reference">Reference Designator</option>
+                            <option value="Value">Value</option>
+                            <option value="Package">Package</option>
+                            <option value="VendorPN">Vendor Part Number</option>
+                            <option value="Vendor">Vendor</option>
+                            <option value="Cost">Cost</option>
+                            <option value="Ignore">Ignore This Column</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="part-card-template">
+        <div class="part-card">
+            <div class="part-header">
+                <h3 class="part-mpn"></h3>
+                <span class="part-status"></span>
+            </div>
+            <div class="part-details">
+                <p class="part-manufacturer"></p>
+                <p class="part-description"></p>
+                <div class="part-pricing">
+                    <p class="part-price"></p>
+                    <div class="price-breaks"></div>
+                </div>
+            </div>
+            <div class="part-substitutes" style="display: none;">
+                <h4>Suggested Substitutes:</h4>
+                <div class="substitutes-container"></div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="substitute-card-template">
+        <div class="substitute-card">
+            <div class="substitute-header">
+                <h4 class="substitute-mpn"></h4>
+                <span class="substitute-status"></span>
+            </div>
+            <p class="substitute-manufacturer"></p>
+            <p class="substitute-description"></p>
+            <p class="substitute-price"></p>
+        </div>
+    </template>
+    
+    <script src="main.js" type="module"></script>
+</body>
+</html>

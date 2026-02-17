@@ -1,0 +1,17 @@
+{
+    "name": "Fabspace AI Plugin",
+    "description": "AI-powered BOM checker, manufacturability analysis, and DRC automation for KiCad.",
+    "version": "1.0.0",
+    "author": "Nsisong Edet",
+    "license": "MIT",
+    "type": "plugin",
+    "dependencies": {
+        "python": ">=3.9"
+    },
+    "homepage": "https://fabspace.ai",
+    "tags": ["AI", "BOM", "DRC", "Manufacturing"],
+    "icon": "logo/fabspace-icon.png",
+    "title": "Fabspace AI Plugin",
+    "entry_point": "plugin.py"
+}
+  

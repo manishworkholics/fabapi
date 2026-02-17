@@ -1,0 +1,23 @@
+// This is the model for the EMS bid on a quote
+
+enum QuoteBidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+model QuoteEMSBid {
+  id       String  @id @default(uuid())
+  amount   Decimal
+  message  String?
+  quoteId  String
+  quote    Quote   @relation(fields: [quoteId], references: [quoteId], onDelete: Cascade)
+  bidderId Int
+  bidder   User    @relation(fields: [bidderId], references: [id], onDelete: Cascade)
+
+  status QuoteBidStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

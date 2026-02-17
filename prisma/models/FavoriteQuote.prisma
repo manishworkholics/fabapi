@@ -1,0 +1,10 @@
+model FavoriteQuote {
+  id      String @id @default(uuid())
+  userId  Int
+  quoteId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quote Quote @relation(fields: [quoteId], references: [quoteId], onDelete: Cascade)
+
+  @@unique([userId, quoteId])
+}

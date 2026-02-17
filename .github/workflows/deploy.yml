@@ -1,0 +1,49 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Deploy to EC2
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+        HOST: ${{ secrets.EC2_HOST }}
+        USER: ${{ secrets.EC2_USER }}
+      run: |
+        # Setup SSH key for EC2 connection
+        printf "%s" "$PRIVATE_KEY" > github-ec2.pem
+        chmod 600 github-ec2.pem
+        
+        ssh -o StrictHostKeyChecking=no -i github-ec2.pem ${USER}@${HOST} << 'EOF'
+          echo "Deploying to EC2..."
+
+          REPO_URL="git@github.com:Trust-Finance/fabspace-api.git"
+          BRANCH="main"
+          REPO_DIR="\$HOME/fabspace-api"
+
+          # Ensure GitHub SSH key is loaded
+          eval "\$(ssh-agent -s)"
+          ssh-add ~/.ssh/github-deploy-key  # Ensure this key is added to GitHub
+
+          # Clone or Pull latest code
+          if [ -d "\$REPO_DIR/.git" ]; then
+            cd "\$REPO_DIR"
+            git pull origin "\$BRANCH"
+          else
+            git clone "\$REPO_URL" "\$REPO_DIR"
+            cd "\$REPO_DIR"
+          fi
+
+          # Install dependencies and build project
+          npm install
+          npm run build
+
+          # Restart server with PM2
+          pm2 restart fabspace-api || pm2 start server.js --name fabspace-api
+        EOF

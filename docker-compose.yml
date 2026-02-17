@@ -1,0 +1,57 @@
+services:
+  fabspace_api:
+    container_name: fabspace_api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - 9001:9001
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5434/fabspace_db
+    env_file:
+      - .env
+    networks:
+      - app_network
+    depends_on:
+      - fabspace_db
+
+  fabspace_db:
+    image: postgres:17.3-alpine
+    container_name: fabspace_db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=fabspace_db
+    ports:
+      - 5434:5432
+    networks:
+      - app_network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d fabspace_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  fabspace_bom_checker:
+    container_name: fabspace_bom_checker
+    build:
+      context: ./python/bom-checker
+      dockerfile: ./Dockerfile
+    restart: always
+    environment:
+      - PORT=5001
+    ports:
+      - 5001:5001
+    env_file:
+      - .env
+    networks:
+      - app_network
+    depends_on:
+      - fabspace_db
+      - fabspace_api
+
+networks:
+  app_network:
+    driver: bridge

@@ -1,0 +1,19 @@
+model Review {
+  id        Int      @id @default(autoincrement())
+
+  rating    Int
+  comment   String
+
+  pmId      Int
+  emsId     Int
+
+  pm  User @relation("PMReviews", fields: [pmId], references: [id])
+  ems User @relation("EMSReviews", fields: [emsId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([emsId])
+}
+
+
+

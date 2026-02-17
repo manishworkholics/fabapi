@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "EMSBid" ADD COLUMN     "signedNDA" BOOLEAN NOT NULL DEFAULT false;

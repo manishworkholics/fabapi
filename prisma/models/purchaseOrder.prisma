@@ -1,0 +1,24 @@
+model PurchaseOrder {
+  id String @id @default(uuid())
+
+  projectId Int     @unique
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  quoteId String
+  bidId   String
+
+  pmId  Int
+  emsId Int
+
+  vendorName String
+
+  items    Json
+  subtotal Decimal
+  tax      Decimal?
+  total    Decimal
+
+  deliveryDate DateTime?
+  notes        String?
+
+  createdAt DateTime @default(now())
+}

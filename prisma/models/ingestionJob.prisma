@@ -1,0 +1,16 @@
+model IngestionJob {
+  id        String   @id @default(uuid())
+  userId    String
+  sourceUrl String
+  status    String // queued | downloading | uploading | completed | failed | staged | awaiting_upload
+  s3Bucket  String?
+  s3Key     String?
+  sizeBytes BigInt?
+  sha256    String?
+  error     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  quote     Quote?
+
+  @@index([userId, createdAt])
+}

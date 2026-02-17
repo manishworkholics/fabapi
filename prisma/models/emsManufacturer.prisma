@@ -1,0 +1,21 @@
+model EMSManufacturer {
+  id                          Int      @id @default(autoincrement())
+  name                        String
+  email                       String?
+  phone                       String?
+  location                    String?
+  employees                   String?
+  certifications              String?
+  industries                  String?
+  website                     String?
+  emsType                     String?
+  manufacturingSpecifications String?  @db.Text
+  assemblySpecifications      String?  @db.Text
+  capabilities                String?  @db.Text
+  equipment                   String?  @db.Text
+  constraints                 String?  @db.Text
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  @@map("ems_manufacturers")
+}

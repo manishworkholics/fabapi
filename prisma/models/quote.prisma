@@ -1,0 +1,53 @@
+model Quote {
+  id             Int           @id @default(autoincrement())
+  quoteId        String        @unique
+  user           User          @relation("quoteAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+  quoteMaterials String[]
+  quoteName      String        @default("")
+  pcbBoards      Int?
+  stencils       Int?
+  components     Int?
+  turnTime       Int
+  quoteFiles     String[]
+  title          String
+  description    String
+  quoteType      QuoteType     @default(OPEN_QUOTE)
+  bids           QuoteEMSBid[]
+  assignedEMSId  Int?
+  assignedEMS    User?         @relation("assignedQuote", fields: [assignedEMSId], references: [id])
+  budget         Decimal
+  status         QuoteStatus   @default(PENDING)
+  isDraft        Boolean       @default(false)
+  isArchived     Boolean       @default(false)
+  isDisabled     Boolean       @default(false)
+  hasNDA         Boolean       @default(false)
+  quoteNDA       QuoteNDA[]
+  numberOfBoards String[]      @default([])
+  ingestionJobId String?       @unique
+  ingestionJob   IngestionJob? @relation(fields: [ingestionJobId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @default(now())
+  project        Project?
+
+  favoriteQuotes FavoriteQuote[]
+}
+
+enum QuoteType {
+  OPEN_QUOTE
+  FIXED_QUOTE
+  QUICK_QUOTE
+}
+
+enum QuoteStatus {
+  PENDING
+  ASSIGNED
+  COMPLETED
+  WITHDRAWN
+}
+
+enum QuoteMaterials {
+  PCB
+  COMPONENT
+  STENCIL
+}
