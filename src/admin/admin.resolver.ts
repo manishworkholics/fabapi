@@ -20,13 +20,20 @@ import { AdminProjectListResponse } from './dto/admin-project-list.type';
 import { AdminProjectListInput } from './dto/admin-project-list.input';
 import { AdminBidListResponse } from './dto/admin-bid-list.type';
 import { AdminBidListInput } from './dto/admin-bid-list.input';
+import { MailService } from '../mail/mail.service';
 
 @Resolver()
 export class AdminResolver {
-    constructor(private adminService: AdminService) { }
+    constructor(private adminService: AdminService, private mailService: MailService,) { }
 
     /* ---------- PUBLIC ---------- */
-
+    
+    @Public()
+    @Mutation(() => String)
+    async testEmail(@Args('email') email: string) {
+        await this.mailService.sendTestEmail(email);
+        return 'Test email sent successfully';
+    }
 
     @Public()
     @Mutation(() => String)

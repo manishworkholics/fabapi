@@ -14,6 +14,7 @@ import { DetailedBidInput } from './dto/detailed-bid.input';
 import { generateUId } from 'src/utils/helpers';
 import { ProjectService } from 'src/project/project.service';
 import { PurchaseOrderService } from '../purchase-order/purchase-order.service';
+import { MailService } from 'src/mail/mail.service';
 
 
 @Injectable()
@@ -21,6 +22,7 @@ export class QuoteService {
   [x: string]: any;
   constructor(
     private readonly prisma: PrismaService,
+    private mailService: MailService,
     private readonly projectService: ProjectService,
     private readonly purchaseOrderService: PurchaseOrderService,
   ) { }
@@ -244,6 +246,58 @@ export class QuoteService {
     });
   }
 
+  // async createQuote(userId: number, createQuoteInput: CreateQuoteInput) {
+  //   if (createQuoteInput.assignedEMSId) {
+  //     const EMS = await this.foundUser(createQuoteInput.assignedEMSId);
+  //     if (!EMS) throw new NotFoundException('Invalid EMS Id!');
+  //   }
+
+  //   const user = await this.prisma.user.findUnique({
+  //     where: { id: userId },
+  //     include: { company: true },
+  //   });
+
+  //   const quoteId = generateUId(user?.company?.name);
+
+  //   return await this.prisma.quote.create({
+  //     data: {
+  //       quoteId,
+  //       user: { connect: { id: userId } },
+  //       title: createQuoteInput.title,
+  //       description: createQuoteInput.description,
+  //       quoteMaterials: createQuoteInput.quoteMaterials,
+  //       pcbBoards: createQuoteInput.pcbBoards,
+  //       stencils: createQuoteInput.stencils,
+  //       components: createQuoteInput.components,
+  //       turnTime: createQuoteInput.turnTime,
+  //       quoteFiles: createQuoteInput.quoteFiles,
+  //       quoteName: createQuoteInput.quoteName,
+  //       budget: createQuoteInput.budget,
+  //       quoteType: createQuoteInput.quoteType,
+  //       assignedEMS: createQuoteInput.assignedEMSId
+  //         ? { connect: { id: createQuoteInput.assignedEMSId } }
+  //         : undefined,
+  //       status: createQuoteInput.assignedEMSId ? 'ASSIGNED' : 'PENDING',
+  //       hasNDA: createQuoteInput.hasNDA,
+  //       isDraft: createQuoteInput.isDraft ?? false,
+  //       numberOfBoards: createQuoteInput.numberOfBoards,
+  //     },
+  //     include: {
+  //       bids: true,
+  //       user: true,
+  //       assignedEMS: true,
+  //     },
+  //   });
+
+  //   await this.mailService.sendQuoteSubmittedToPM(
+  //     user.email,
+  //     user.firstName ?? 'User',
+  //     quote.id,
+  //     quote.quoteName,
+  //   );
+  // }
+
+
   async createQuote(userId: number, createQuoteInput: CreateQuoteInput) {
     if (createQuoteInput.assignedEMSId) {
       const EMS = await this.foundUser(createQuoteInput.assignedEMSId);
@@ -255,9 +309,13 @@ export class QuoteService {
       include: { company: true },
     });
 
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const quoteId = generateUId(user?.company?.name);
 
-    return await this.prisma.quote.create({
+    const quote = await this.prisma.quote.create({
       data: {
         quoteId,
         user: { connect: { id: userId } },
@@ -286,6 +344,44 @@ export class QuoteService {
         assignedEMS: true,
       },
     });
+
+    // ✅ Non-blocking email (best practice)
+    this.mailService
+      .sendQuoteSubmittedToPM(
+        user.email, // no optional chaining
+        user.firstName ?? 'User',
+        quote.quoteId,
+        quote.quoteName,
+      )
+      .catch((err) => {
+        console.error('Quote submission email failed:', err);
+      });
+
+    // ✅ If quote assigned directly to EMS → notify that EMS
+    // if (quote.user?.email) {
+    //   this.mailService
+    //     .notifyDirectEMSQuote(
+    //       quote.user.email,
+    //       quote.quoteId,
+    //       quote.title,
+    //     )
+    //     .catch((err) => {
+    //       console.error('Direct EMS notification failed:', err);
+    //     });
+    // }
+
+
+    if (quote.assignedEMS) {
+      this.mailService
+        .notifyEMSNewQuote(
+          quote.assignedEMS.email,
+          quote.quoteId,
+          quote.quoteName,
+        )
+        .catch(console.error);
+    }
+
+    return quote;
   }
 
   async updateQuote(quoteId: string, updateQuoteInput: UpdateQuoteInput) {
@@ -365,6 +461,44 @@ export class QuoteService {
 
   // quote bidding
 
+  // async placeBid(
+  //   quoteId: string,
+  //   bidderId: number,
+  //   placeBidInput: PlaceBidInput,
+  // ) {
+  //   const quote = await this.prisma.quote.findUnique({
+  //     where: { quoteId },
+  //   });
+
+  //   if (!quote) {
+  //     throw new NotFoundException('Quote not found.');
+  //   }
+
+  //   const existingBid = await this.prisma.quoteEMSBid.findFirst({
+  //     where: {
+  //       quoteId: quoteId,
+  //       bidderId: bidderId,
+  //     },
+  //   });
+
+  //   if (existingBid) {
+  //     throw new ForbiddenException(
+  //       'You have already placed a bid on this quote.',
+  //     );
+  //   }
+
+  //   return this.prisma.quoteEMSBid.create({
+  //     data: {
+  //       quoteId,
+  //       bidderId: bidderId,
+  //       amount: placeBidInput.amount,
+  //       message: placeBidInput.message,
+  //     },
+  //   });
+  // }
+
+
+
   async placeBid(
     quoteId: string,
     bidderId: number,
@@ -372,6 +506,7 @@ export class QuoteService {
   ) {
     const quote = await this.prisma.quote.findUnique({
       where: { quoteId },
+      include: { user: true }, // 👈 include PM user
     });
 
     if (!quote) {
@@ -391,7 +526,7 @@ export class QuoteService {
       );
     }
 
-    return this.prisma.quoteEMSBid.create({
+    const bid = await this.prisma.quoteEMSBid.create({
       data: {
         quoteId,
         bidderId: bidderId,
@@ -399,52 +534,25 @@ export class QuoteService {
         message: placeBidInput.message,
       },
     });
+
+    // ✅ Send email to PM (non-blocking)
+    if (quote.user?.email) {
+      this.mailService
+        .notifyPMBidReceived(
+          quote.user.email,
+          quote.user.firstName ?? 'User',
+          quote.quoteId,
+          quote.quoteName,
+        )
+        .catch((err) => {
+          console.error('Bid notification email failed:', err);
+        });
+    }
+
+
+
+    return bid;
   }
-
-  // async placeBid(
-  //   quoteId: string,
-  //   bidderId: number,
-  //   placeBidInput: PlaceBidInput,
-  // ) {
-  //   const quote = await this.prisma.quote.findUnique({ where: { quoteId } });
-
-  //   if (!quote) throw new NotFoundException('Quote not found.');
-
-  //   if (quote.status !== 'PENDING') {
-  //     throw new ForbiddenException('Bidding is closed for this quote.');
-  //   }
-
-  //   const existingBid = await this.prisma.quoteEMSBid.findFirst({
-  //     where: { quoteId, bidderId },
-  //   });
-
-  //   if (existingBid) {
-  //     if (existingBid.status === 'WITHDRAWN') {
-  //       return this.prisma.quoteEMSBid.update({
-  //         where: { id: existingBid.id },
-  //         data: {
-  //           amount: placeBidInput.amount,
-  //           message: placeBidInput.message,
-  //           status: 'PENDING',
-  //         },
-  //       });
-  //     }
-
-  //     throw new ForbiddenException('You have already placed a bid.');
-  //   }
-
-  //   return this.prisma.quoteEMSBid.create({
-  //     data: {
-  //       quoteId,
-  //       bidderId,
-  //       amount: placeBidInput.amount,
-  //       message: placeBidInput.message,
-  //       status: 'PENDING',
-  //     },
-  //   });
-  // }
-
-
 
   async placeDetailedBid(
     quoteId: string,

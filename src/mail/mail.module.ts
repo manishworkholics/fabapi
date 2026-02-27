@@ -22,7 +22,7 @@ import { ConfigService } from '@nestjs/config';
           from: `"No Reply" <${config.get('MAIL_FROM')}>`,
         },
         template: {
-          dir: join(__dirname, 'templates'),
+          dir: join(process.cwd(), 'src/mail/templates'),
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
@@ -35,4 +35,4 @@ import { ConfigService } from '@nestjs/config';
   providers: [MailService],
   exports: [MailService],
 })
-export class MailModule {}
+export class MailModule { }

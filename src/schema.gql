@@ -536,6 +536,7 @@ type Mutation {
   acceptQuoteBid(bidId: String!): ProjectDTO!
   updateProjectStatus(projectId: Int!, input: UpdateProjectStatusInput!): ProjectDTO!
   createReview(pmId: Int!, input: CreateReviewInput!): ReviewType!
+  testEmail(email: String!): String!
   adminRegister(data: AdminRegisterInput!): String!
   adminLogin(data: AdminLoginInput!): String!
   adminToggleUser(input: AdminToggleUserInput!): User!
